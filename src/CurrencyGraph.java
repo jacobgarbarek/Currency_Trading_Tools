@@ -20,13 +20,13 @@ public class CurrencyGraph<E> extends AdjacencyListGraph{
     private float[][] exchangeRates;
     private String[] currencies;
     private ArrayList<Vertex> vertexList;
-    private Map<Edge<String>,Float> weights;
+    private Map<Edge<E>,Float> weights;
     
     public CurrencyGraph(String[] currencies, float[][] exchangeRates){
         super(GraphType.DIRECTED);
         this.currencies = currencies;
         this.exchangeRates = exchangeRates;
-        weights = new HashMap<Edge<String>,Float>();
+        weights = new HashMap<Edge<E>,Float>();
         vertexList = new ArrayList<>();
         calculateAdjacencyList();
     }
@@ -41,17 +41,23 @@ public class CurrencyGraph<E> extends AdjacencyListGraph{
                 
                 if(exchangeRate != 0){
                     exchangeRate = (float) Math.log(1/exchangeRate);
-                    Edge<String> edge = this.addEdge(vertexList.get(i), vertexList.get(j));
+                    Edge<E> edge = this.addEdge(vertexList.get(i), vertexList.get(j));
                     weights.put(edge, exchangeRate);
                 }
             }
         }
     }
     
-    public String getBestConversionRate(int currency1, int currency2){
-        Vertex currencyVertex1 = vertexList.get(currency1);
-        Vertex currencyVertex2 = vertexList.get(currency2);
+    public Set<Edge<E>> getShortestPaths(Vertex<E> source){
+        Map<Vertex<E>,Edge<E>> leastEdges = new HashMap<Vertex<E>,Edge<E>>();
+        final Map<Vertex<E>,Float> shortestPathEstimates = new HashMap<Vertex<E>,Float>();
         
+        for (Object vertex : this.vertexSet()){
+            shortestPathEstimates.put((Vertex<E>) vertex, Float.MAX_VALUE);
+            leastEdges.put((Vertex<E>) vertex, null);
+        }
+        
+        shortestPathEstimates.put(source, new Float(0));
         
         
         return null;
