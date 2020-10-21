@@ -1,3 +1,7 @@
+
+import java.util.InputMismatchException;
+import java.util.Scanner;
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -10,37 +14,71 @@
  */
 public class BestConversionFinder {
     public static void main(String[] args){
-        /*String[] currencies = new String[]{"NZD","AUD","EUR","USD","GBP"};
-        float[][] exchangeRates = new float[][]{
-            {1f, 0.92f, 0.56f, 0.66f, 0.51f },
-            {1.08f, 1f, 0.61f, 0.7f, 0.55f },
-            {1.78f, 1.64f, 1f, 1.18f, 0.90f },
-            {1.51f, 1.39f, 0.85f, 1f, 0.77f },
-            {1.97f, 1.82f, 1.11f, 1.30f, 1f }
-        };
-        
-        CurrencyGraph<String> graph = new CurrencyGraph<String>(currencies, exchangeRates);
-        
-        System.out.println(graph);*/
-        
         String[] currencies = new String[]{"AUD","EUR","MXN","NZD","USD"};
-        float[][] exchangeRates = new float[][]{
-            {1f, 0.61f, 0f, 1.08f, 0.72f },
-            {1.64f, 1f, 0f, 1.77f, 1.18f },
-            {0f, 0f, 1f, 0f, 0.047f },
-            {0.92f, 0.56f, 0f, 1f, 0.67f },
-            {1.39f, 0.85f, 21.19f, 1.5f, 1f }
+        double[][] exchangeRates = new double[][]{
+            {1.0000, 0.5966, 0.0000, 1.0694, 0.7077 },
+            {1.6751, 1.0000, 0.0000, 1.7919, 1.1861 },
+            {0.0000, 0.0000, 1.0000, 0.0000, 0.0474 },
+            {0.9348, 0.5579, 0.0000, 1.0000, 0.6616 },
+            {1.4125, 0.8431, 21.0496, 1.5110, 1.0000 }
         };
         
         CurrencyGraph<String> graph = new CurrencyGraph<String>(currencies, exchangeRates);
+        System.out.println("Exchange Rates (21 Oct 2020)");
         System.out.println(graph);
         
-        System.out.println("Finding best conversion rate: ");
-        ShortestPathResult<String> sp = graph.getShortestPaths(1, 0);
-        System.out.println(sp);
-        for (Edge<String> edge : sp.getShortestPathEdges().values()){
-          if(edge != null)
-              System.out.print(" "+edge);
-      }
+        boolean inputCorrect = false;
+        Scanner input = new Scanner(System.in);
+        int startingIndex = 0;
+        
+        do{
+            try{
+                System.out.print("Enter a starting currency index (e.g. 0 for AUD): ");
+                startingIndex = input.nextInt();
+                inputCorrect = true;
+            }catch(InputMismatchException ex){
+                System.out.println("Please input a number.");
+                inputCorrect = false;
+                input.nextLine();
+            }
+            
+            if(inputCorrect && (startingIndex < 0 || startingIndex >= currencies.length)){
+                System.out.println("Please enter a valid index.");
+                inputCorrect = false;
+            }
+        }while(!inputCorrect);
+        
+        inputCorrect = false;
+        int endingIndex = 0;
+        
+        do{
+            try{
+                System.out.print("Enter a ending currency index (e.g. 1 for EUR): ");
+                endingIndex = input.nextInt();
+                inputCorrect = true;
+            }catch(InputMismatchException ex){
+                System.out.println("Please input a number.");
+                inputCorrect = false;
+                input.nextLine();
+            }
+            
+            if(inputCorrect && startingIndex == endingIndex){
+                System.out.println(currencies[startingIndex]+" is already your starting index.");
+                inputCorrect = false;
+            }else if(inputCorrect){
+                if (endingIndex < 0 || endingIndex >= currencies.length) {
+                    System.out.println("Please enter a valid index.");
+                    inputCorrect = false;
+                }
+            }
+        }while(!inputCorrect);
+        
+        ShortestPathResult<String> sp = graph.getShortestPaths(startingIndex, endingIndex);
+        System.out.println("\nThe optimal conversion path from "+currencies[startingIndex]+" to "+currencies[endingIndex]+" is:");
+        
+        if(sp.getConversionRate() <= exchangeRates[startingIndex][endingIndex]) //sometimes due to rounding path may have middle exchange that thinks it's path is better (although it's the same)
+            System.out.println("("+currencies[startingIndex]+"-"+currencies[endingIndex]+")" + " = "+exchangeRates[startingIndex][endingIndex]);
+        else
+            System.out.println(sp);
     }
 }

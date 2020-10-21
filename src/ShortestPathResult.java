@@ -1,4 +1,6 @@
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Map;
 
 /*
@@ -15,15 +17,18 @@ public class ShortestPathResult<E> {
     private Vertex<E> source;
     private Vertex<E> destination;
     private Map<Vertex<E>,Edge<E>> shortestPathEdges;
-    private Map<Edge<E>,Float> weights;
+    private Map<Edge<E>,Double> weights;
     private boolean arbitrage;
+    private String path;
+    private double conversionRate;
     
-    public ShortestPathResult(Map<Vertex<E>,Edge<E>> shortestPathEdges, Map<Edge<E>,Float> weights, boolean arbitrage, Vertex<E> source, Vertex<E> destination){
+    public ShortestPathResult(Map<Vertex<E>,Edge<E>> shortestPathEdges, Map<Edge<E>,Double> weights, boolean arbitrage, Vertex<E> source, Vertex<E> destination){
         this.shortestPathEdges = shortestPathEdges;
         this.weights = weights;
         this.arbitrage = arbitrage;
         this.source = source;
         this.destination = destination;
+        calculateConversionRateAndPath();
     }
     
     public Map<Vertex<E>,Edge<E>> getShortestPathEdges(){
@@ -34,16 +39,20 @@ public class ShortestPathResult<E> {
         return arbitrage;
     }
     
-    @Override
-    public String toString(){
-        String output = "";
+    public double getConversionRate(){
+        return conversionRate;
+    }
+    
+    private void calculateConversionRateAndPath(){
+        path = "";
+        conversionRate = 0;
         boolean pathFound = false;
         Edge<E> edge = shortestPathEdges.get(destination);
-        float exchange = 0;
+        
         
         while(!pathFound){
-            output = edge + output;
-            exchange += weights.get(edge);
+            path = edge + path;
+            conversionRate += weights.get(edge);
             Vertex<E>[] endVertices = edge.endVertices();
             
             if(endVertices[0].equals(source))
@@ -53,9 +62,15 @@ public class ShortestPathResult<E> {
             }
         }
         
-        exchange = (float) (1/Math.exp(exchange));
-        output += " = " + exchange;
-        
-        return output;
+        conversionRate = (1/Math.exp(conversionRate));
+        BigDecimal bd = new BigDecimal(Double.toString(conversionRate));
+        bd = bd.setScale(4, RoundingMode.HALF_EVEN);
+        conversionRate = bd.doubleValue();
+        path += " = " + conversionRate;
+    }
+    
+    @Override
+    public String toString(){
+        return path;
     }
 }

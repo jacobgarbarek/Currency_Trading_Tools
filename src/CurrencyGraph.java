@@ -1,4 +1,6 @@
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,16 +19,16 @@ import java.util.Set;
  * @author Jacob
  */
 public class CurrencyGraph<E> extends AdjacencyListGraph<E>{
-    private float[][] exchangeRates;
+    private double[][] exchangeRates;
     private String[] currencies;
     private ArrayList<Vertex> vertexList;
-    private Map<Edge<E>,Float> weights;
+    private Map<Edge<E>,Double> weights;
     
-    public CurrencyGraph(String[] currencies, float[][] exchangeRates){
+    public CurrencyGraph(String[] currencies, double[][] exchangeRates){
         super(GraphType.DIRECTED);
         this.currencies = currencies;
         this.exchangeRates = exchangeRates;
-        weights = new HashMap<Edge<E>,Float>();
+        weights = new HashMap<Edge<E>,Double>();
         vertexList = new ArrayList<>();
         calculateAdjacencyList();
     }
@@ -37,10 +39,12 @@ public class CurrencyGraph<E> extends AdjacencyListGraph<E>{
         
         for(int i=0;i<exchangeRates.length;i++){
             for(int j=0;j<exchangeRates[i].length;j++){
-                float exchangeRate = exchangeRates[i][j];
+                double exchangeRate = exchangeRates[i][j];
                 
                 if(exchangeRate != 0 && i != j){
-                    exchangeRate = (float) Math.log(1/exchangeRate);
+                    BigDecimal bd = new BigDecimal(Double.toString(Math.log(1/exchangeRate)));
+                    bd = bd.setScale(4, RoundingMode.HALF_UP);
+                    exchangeRate = bd.doubleValue();
                     Edge<E> edge = this.addEdge(vertexList.get(i), vertexList.get(j));
                     weights.put(edge, exchangeRate);
                 }
@@ -52,23 +56,28 @@ public class CurrencyGraph<E> extends AdjacencyListGraph<E>{
         Vertex<E> source = vertexList.get(sourceIndex);
         Vertex<E> destination = vertexList.get(destinationIndex);
         Map<Vertex<E>,Edge<E>> leastEdges = new HashMap<Vertex<E>,Edge<E>>();
-        Map<Vertex<E>,Float> shortestPathEstimates = new HashMap<Vertex<E>,Float>();
+        Map<Vertex<E>,Double> shortestPathEstimates = new HashMap<Vertex<E>,Double>();
         
         for (Vertex<E> vertex : this.vertexSet()){
-            shortestPathEstimates.put((Vertex<E>) vertex, Float.MAX_VALUE);
+            shortestPathEstimates.put((Vertex<E>) vertex, Double.POSITIVE_INFINITY);
             leastEdges.put((Vertex<E>) vertex, null);
         }
         
-        shortestPathEstimates.put(source, new Float(0));
+        shortestPathEstimates.put(source, new Double(0));
         
         for(int i=1;i<this.vertexSet().size();i++){
             for (Edge<E> edge : this.edgeSet()){
                 Vertex<E>[] endVertices = edge.endVertices();
-                Float du = shortestPathEstimates.get(endVertices[0]);
+                Double du = shortestPathEstimates.get(endVertices[0]);
                 
-                if(du != Float.MAX_VALUE){
+                if(du < Float.POSITIVE_INFINITY){
                     if (du + weights.get(edge) < shortestPathEstimates.get(endVertices[1])) {
-                        shortestPathEstimates.put(endVertices[1], du + weights.get(edge));
+                        double duW = du + weights.get(edge);
+                        
+                        BigDecimal bd = new BigDecimal(Double.toString(duW));
+                        bd = bd.setScale(4, RoundingMode.HALF_UP);
+                        duW = bd.doubleValue();
+                        shortestPathEstimates.put(endVertices[1], duW);
                         leastEdges.put(endVertices[1], edge);
                     }
                 }
@@ -77,9 +86,9 @@ public class CurrencyGraph<E> extends AdjacencyListGraph<E>{
         
         for (Edge<E> edge : this.edgeSet()){
             Vertex<E>[] endVertices = edge.endVertices();
-            Float du = shortestPathEstimates.get(endVertices[0]);
-            
-            if(du != Float.MAX_VALUE){
+            Double du = shortestPathEstimates.get(endVertices[0]);
+             
+            if(du < Float.POSITIVE_INFINITY){
                 if (du + weights.get(edge) < shortestPathEstimates.get(endVertices[1])) {
                     return new ShortestPathResult(leastEdges, weights, true, source, destination);
                 }
@@ -91,7 +100,7 @@ public class CurrencyGraph<E> extends AdjacencyListGraph<E>{
     
     @Override
     public String toString()
-   {  String output = "Exchange Rates (13 Oct 2020)\n";
+   {  String output = "";
       for (int i=0; i<currencies.length; i++){
           output += "("+i+") "+currencies[i] + " : ";
           for(int j=0; j<exchangeRates[i].length;j++){
@@ -101,7 +110,7 @@ public class CurrencyGraph<E> extends AdjacencyListGraph<E>{
           output += "\n";
       }
       
-      output += "\nEdge Weights\n";
+      /*output += "\nEdge Weights\n";
       
       for (Vertex<E> vertex : vertices){
          output += vertex + ": ";
@@ -111,7 +120,7 @@ public class CurrencyGraph<E> extends AdjacencyListGraph<E>{
              output += weights.get(edge) + "" + edge+", ";
          }
          output += "\n";
-      }
+      }*/
       
       return output;
    }
