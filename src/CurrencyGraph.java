@@ -90,7 +90,8 @@ public class CurrencyGraph<E> extends AdjacencyListGraph<E>{
              
             if(du < Float.POSITIVE_INFINITY){
                 if (du + weights.get(edge) < shortestPathEstimates.get(endVertices[1])) {
-                    return new ShortestPathResult(leastEdges, weights, true, source, destination);
+                    System.out.println("Arbitrage");
+                    return new ShortestPathResult(leastEdges, weights, true, source, destination, this.adjacencyLists, vertexList);
                 }
             }
         }
@@ -110,7 +111,7 @@ public class CurrencyGraph<E> extends AdjacencyListGraph<E>{
           output += "\n";
       }
       
-      /*output += "\nEdge Weights\n";
+      output += "\nEdge Weights\n";
       
       for (Vertex<E> vertex : vertices){
          output += vertex + ": ";
@@ -120,7 +121,7 @@ public class CurrencyGraph<E> extends AdjacencyListGraph<E>{
              output += weights.get(edge) + "" + edge+", ";
          }
          output += "\n";
-      }*/
+      }
       
       return output;
    }
