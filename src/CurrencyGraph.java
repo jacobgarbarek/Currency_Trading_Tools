@@ -91,12 +91,12 @@ public class CurrencyGraph<E> extends AdjacencyListGraph<E>{
             if(du < Float.POSITIVE_INFINITY){
                 if (du + weights.get(edge) < shortestPathEstimates.get(endVertices[1])) {
                     System.out.println("Arbitrage");
-                    return new ShortestPathResult(leastEdges, weights, true, source, destination, this.adjacencyLists, vertexList);
+                    return null;        //handle this
                 }
             }
         }
         
-        return new ShortestPathResult(leastEdges, weights, false, source, destination);
+        return new ShortestPathResult(leastEdges, weights, source, destination);
     }
     
     @Override
@@ -125,4 +125,60 @@ public class CurrencyGraph<E> extends AdjacencyListGraph<E>{
       
       return output;
    }
+
+    public Map<Vertex<E>,String> getArbitrage() {
+        double[][] weightsTable = new double[vertexList.size()][vertexList.size()];
+
+        for (int i = 0; i < weightsTable.length; i++) {
+            Set<Edge<E>> edges = adjacencyLists.get(vertexList.get(i));
+            for (int j = 0; j < weightsTable[i].length; j++) {
+                weightsTable[i][j] = Double.POSITIVE_INFINITY;
+            }
+            for (Edge<E> e : edges) {
+                Vertex<E>[] endVertices = e.endVertices();
+                weightsTable[i][vertexList.indexOf(endVertices[1])] = weights.get(e);
+            }
+        }
+        
+        AllPairsFloydWarshall apfw = new AllPairsFloydWarshall(weightsTable);
+        double[][][] d = apfw.getD();
+        int[][][] p = apfw.getP();
+        int n = apfw.getN();
+        
+        Map<Vertex<E>,String> aPaths = new HashMap<>();
+        HashSet<Vertex<E>> duplicateChecker = new HashSet<>();
+        String path = null;
+        
+        for(int i=0;i<vertexList.size();i++){
+            double conversionRate = d[n][i][i];
+            if(conversionRate < 0){                             //arbitrage opportunity exists
+                boolean innerClosedPath = false;
+                int prevStep = p[n][i][i];
+                path = vertexList.get(i) + ")";
+                do {
+                    Vertex<E> prevV = vertexList.get(prevStep);
+                    if(!duplicateChecker.add(prevV))
+                        innerClosedPath = true;
+                    else{
+                        path = vertexList.get(prevStep) + "-" + path;
+                        prevStep = p[n][i][prevStep];
+                    }
+                } while (!innerClosedPath && p[n][i][prevStep] != i);
+                
+                if(!innerClosedPath){
+                    conversionRate = (1 / Math.exp(conversionRate));
+                    BigDecimal bd = new BigDecimal(Double.toString(conversionRate));
+                    bd = bd.setScale(4, RoundingMode.HALF_EVEN);
+                    conversionRate = bd.doubleValue();
+                    path = "(" + path + " = "+conversionRate;
+                    aPaths.put(vertexList.get(i), path);
+                }
+                
+                duplicateChecker.clear();
+                path = "";
+            }
+        }
+        
+        return aPaths;
+    }
 }

@@ -74,11 +74,19 @@ public class BestConversionFinder {
         }while(!inputCorrect);
         
         ShortestPathResult<String> sp = graph.getShortestPaths(startingIndex, endingIndex);
-        System.out.println("\nThe optimal conversion path from "+currencies[startingIndex]+" to "+currencies[endingIndex]+" is:");
         
-        if(sp.getConversionRate() <= exchangeRates[startingIndex][endingIndex]) //sometimes due to rounding path may have middle exchange that thinks it's path is better (although it's the same)
-            System.out.println("("+currencies[startingIndex]+"-"+currencies[endingIndex]+")" + " = "+exchangeRates[startingIndex][endingIndex]);
-        else
-            System.out.println(sp);
+        if(sp != null){
+            System.out.println("\nThe optimal conversion path from " + currencies[startingIndex] + " to " + currencies[endingIndex] + " is:");
+
+            if (sp.getConversionRate() <= exchangeRates[startingIndex][endingIndex]) //sometimes due to rounding path may have middle exchange that thinks it's path is better (although it's the same)
+            {
+                System.out.println("(" + currencies[startingIndex] + "-" + currencies[endingIndex] + ")" + " = " + exchangeRates[startingIndex][endingIndex]);
+            } else {
+                System.out.println(sp);
+            }
+        } else{
+            System.out.println("An optimal conversion could not be found as there is an arbitrage opportunity.");
+        }
+        
     }
 }

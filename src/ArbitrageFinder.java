@@ -1,3 +1,6 @@
+
+import java.util.Map;
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -22,7 +25,14 @@ public class ArbitrageFinder {
         System.out.println("Exchange Rates (21 Oct 2020)");
         System.out.println(graph);
         
-        ShortestPathResult<String> sp = graph.getShortestPaths(3, 1);
-        System.out.println(sp.getAb());
+        Map<Vertex<String>,String> arbitragePaths = graph.getArbitrage();
+        
+        if(!arbitragePaths.isEmpty()){
+            System.out.println("Current arbitrage opportunities: ");
+            for(String s: arbitragePaths.values())
+                System.out.println(s);
+        }else
+            System.out.println("There are no current arbitrage opportunities.");
+        
     }
 }
