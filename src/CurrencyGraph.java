@@ -1,7 +1,6 @@
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -141,6 +140,7 @@ public class CurrencyGraph<E> extends AdjacencyListGraph<E>{
         }
         
         AllPairsFloydWarshall apfw = new AllPairsFloydWarshall(weightsTable);
+        System.out.println(apfw);
         double[][][] d = apfw.getD();
         int[][][] p = apfw.getP();
         int n = apfw.getN();
@@ -150,17 +150,30 @@ public class CurrencyGraph<E> extends AdjacencyListGraph<E>{
         String path = null;
         
         for(int i=0;i<vertexList.size();i++){
-            double conversionRate = d[n][i][i];
-            if(conversionRate < 0){                             //arbitrage opportunity exists
+            double conversionRate = 0;
+            if(d[n][i][i] < 0){                             //arbitrage opportunity exists
                 boolean innerClosedPath = false;
                 int prevStep = p[n][i][i];
                 path = vertexList.get(i) + ")";
+                int finalPointingIndex = i;
+                
                 do {
                     Vertex<E> prevV = vertexList.get(prevStep);
+                    
                     if(!duplicateChecker.add(prevV))
                         innerClosedPath = true;
                     else{
+                        Set<Edge<E>> edges = adjacencyLists.get(prevV);
+                        
+                        for (Edge<E> e : edges) {
+                            Vertex<E>[] endVertices = e.endVertices();
+                            if(endVertices[1].equals(vertexList.get(finalPointingIndex))){
+                                conversionRate += weights.get(e);
+                                break;
+                            }
+                        }
                         path = vertexList.get(prevStep) + "-" + path;
+                        finalPointingIndex = prevStep;
                         prevStep = p[n][i][prevStep];
                     }
                 } while (!innerClosedPath && p[n][i][prevStep] != i);
