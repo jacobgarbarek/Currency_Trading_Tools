@@ -29,5 +29,9 @@ public class BridgeExchangeFinder {
 
         BridgeExchangeGraph<String> graph = new BridgeExchangeGraph<String>(currencies, exchangeRates);
         System.out.println(graph);
+        graph.performDepthFirstSearch(0);
+        System.out.println(graph.d);
+        System.out.println("");
+        System.out.println(graph.m);
     }
 }
