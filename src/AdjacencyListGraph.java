@@ -1,5 +1,3 @@
-
-
 /**
    A class that implements a directed or an undirected graph using an
    adjacency list as the underlying data structure, and whose vertices

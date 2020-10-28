@@ -1,4 +1,4 @@
-
+import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
@@ -10,11 +10,11 @@ import java.util.Scanner;
 
 /**
  *
- * @author Jacob
+ * @author Jacob Garbarek (ID: 17980551) & Angelo Ryndon (ID: 18028033)
  */
 public class BestConversionFinder {
     public static void main(String[] args){
-        String[] currencies = new String[]{"AUD","EUR","MXN","NZD","USD"};
+        String[] currencies = new String[]{"AUD","EUR","MXN","NZD","USD"};                          //Test currencies and data
         double[][] exchangeRates = new double[][]{
             {1.0000, 0.5966, 0.0000, 1.0694, 0.7077 },
             {1.6751, 1.0000, 0.0000, 1.7919, 1.1861 },
@@ -31,7 +31,7 @@ public class BestConversionFinder {
         Scanner input = new Scanner(System.in);
         int startingIndex = 0;
         
-        do{
+        do{                                                                                 //starting currency input
             try{
                 System.out.print("Enter a starting currency index (e.g. 0 for AUD): ");
                 startingIndex = input.nextInt();
@@ -51,7 +51,7 @@ public class BestConversionFinder {
         inputCorrect = false;
         int endingIndex = 0;
         
-        do{
+        do{                                                                                     //ending currency input
             try{
                 System.out.print("Enter a ending currency index (e.g. 1 for EUR): ");
                 endingIndex = input.nextInt();
@@ -74,9 +74,9 @@ public class BestConversionFinder {
         }while(!inputCorrect);
         
         ShortestPathResult<String> sp = graph.getShortestPaths(startingIndex, endingIndex);
-        
-        if(sp != null){
-            System.out.println("\nThe optimal conversion path from " + currencies[startingIndex] + " to " + currencies[endingIndex] + " is:");
+
+        if (sp != null) {
+            System.out.println("\nThe optimal conversion path and rate from " + currencies[startingIndex] + " to " + currencies[endingIndex] + " is:");
 
             if (sp.getConversionRate() <= exchangeRates[startingIndex][endingIndex]) //sometimes due to rounding path may have middle exchange that thinks it's path is better (although it's the same)
             {
@@ -84,9 +84,14 @@ public class BestConversionFinder {
             } else {
                 System.out.println(sp);
             }
-        } else{
-            System.out.println("An optimal conversion could not be found as there is an arbitrage opportunity.");
-        }
-        
+        } else {
+            System.out.println("An optimal conversion rate could not be found as there is an arbitrage opportunity.");
+            ArrayList<String> arbitragePaths = graph.getArbitrage();
+
+            System.out.println("Current arbitrage opportunities: ");
+            for (String path : arbitragePaths) {
+                System.out.println(path);
+            }
+        } 
     }
 }

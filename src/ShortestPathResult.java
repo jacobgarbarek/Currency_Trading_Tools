@@ -1,9 +1,6 @@
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
 import java.util.Map;
-import java.util.Set;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -13,7 +10,7 @@ import java.util.Set;
 
 /**
  *
- * @author Jacob
+ * @author Jacob Garbarek (ID: 17980551) & Angelo Ryndon (ID: 18028033)
  */
 public class ShortestPathResult<E> {
     private Vertex<E> source;
@@ -44,9 +41,8 @@ public class ShortestPathResult<E> {
         conversionRate = 0;
         boolean pathFound = false;
         Edge<E> edge = shortestPathEdges.get(destination);
-        
-        
-        while(!pathFound){
+                
+        while(!pathFound){                                                      //builds path backwards from its destination
             path = edge + path;
             conversionRate += weights.get(edge);
             Vertex<E>[] endVertices = edge.endVertices();
@@ -58,7 +54,7 @@ public class ShortestPathResult<E> {
             }
         }
         
-        conversionRate = (1/Math.exp(conversionRate));
+        conversionRate = (1/Math.exp(conversionRate));                              //Converts weight back to it's conversion rate
         BigDecimal bd = new BigDecimal(Double.toString(conversionRate));
         bd = bd.setScale(4, RoundingMode.HALF_EVEN);
         conversionRate = bd.doubleValue();

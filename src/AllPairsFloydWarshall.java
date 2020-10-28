@@ -1,12 +1,11 @@
 import java.util.ArrayList;
 import java.util.HashSet;
 
-
-
 /**
    A class that demonstrates the Floyd-Warshall algorithm for solving
-   the all-pairs shortest paths problem in O(n^3)
-   @author Andrew Ensor
+   the all-pairs shortest paths problem in O(n^3). Class was adapted by Jacob Garbarek
+   and Angelo Ryndon to handle arbitrage opportunities between exchange rates.
+   @author Andrew Ensor (Adapted by Jacob Garbarek (ID: 17980551) & Angelo Ryndon (ID: 18028033)
 */
 
 public class AllPairsFloydWarshall
@@ -62,7 +61,7 @@ public class AllPairsFloydWarshall
                }
                }
             }
-         recordArbitragePaths(k);
+         recordArbitragePaths(k);                       //arbitrage paths are recorded as more vertices are allowed to be used in shortest path
        }
    }
    
@@ -104,23 +103,25 @@ public class AllPairsFloydWarshall
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
                 if (i == j && d[current][i][j] != INFINITY) {
-                    if(d[current][i][j] < 0){
-                        int pathIndex = p[current][i][j];
+                    if(d[current][i][j] < 0){                                               //arbitrage
                         ArrayList<Integer> tempPath = new ArrayList<Integer>();
-                        tempPath.add(i);
-                        HashSet<Integer> duplicateChecker = new HashSet<>();
-                        do {
-                            tempPath.add(pathIndex);
-                            pathIndex = p[current][i][pathIndex];
-                        } while (pathIndex != i && duplicateChecker.add(pathIndex));
+                        tempPath.add(i);                                                    //adds end currency index
+                        HashSet<Integer> duplicateChecker = new HashSet<>();                //prevents being stuck within inner arbitrage loop
                         
-                        tempPath.add(i);
+                        int pathIndex = p[current][i][j];
+                        
+                        do {
+                            tempPath.add(pathIndex);                                        
+                            pathIndex = p[current][i][pathIndex];
+                        } while (pathIndex != i && duplicateChecker.add(pathIndex));        //ends when back to original currency or inner arbitrage is located
+                        
+                        tempPath.add(i);                                                    //adds start currency index
 
-                        if(pathIndex == i && !arbitragePaths.contains(tempPath)){
+                        if(pathIndex == i && !arbitragePaths.contains(tempPath)){           //complete arbitrage path and path is not already recorded
                             arbitragePaths.add(tempPath);
                             arbitrageExchanges.add(d[current][i][j]);
                                   
-                            if (tempPath.size() == 3) {
+                            if (tempPath.size() == 3) {                                     //can instantly get inverse arbitrage path between two currencies
                                 ArrayList<Integer> oppositeWay = new ArrayList<Integer>();
                                 oppositeWay.add(tempPath.get(1));
                                 oppositeWay.add(tempPath.get(0));

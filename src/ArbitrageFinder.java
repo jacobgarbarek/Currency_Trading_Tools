@@ -1,4 +1,3 @@
-
 import java.util.ArrayList;
 
 /*
@@ -9,11 +8,11 @@ import java.util.ArrayList;
 
 /**
  *
- * @author Jacob
+ * @author Jacob Garbarek (ID: 17980551) & Angelo Ryndon (ID: 18028033)
  */
 public class ArbitrageFinder {
     public static void main(String[] args){
-        String[] currencies = new String[]{"AUD","EUR","MXN","NZD","USD"};
+        String[] currencies = new String[]{"AUD","EUR","MXN","NZD","USD"};      
         double[][] exchangeRates = new double[][]{
             {1.0000, 0.6100, 0.0000, 1.0800, 0.7200 },
             {1.6400, 1.0000, 0.0000, 1.7700, 1.1800 },
@@ -21,16 +20,21 @@ public class ArbitrageFinder {
             {0.9200, 0.5600, 0.0000, 1.0000, 0.670 },
             {1.3900, 0.8500, 21.1900, 1.5000, 1.0000 }
         };
+        
         CurrencyGraph<String> graph = new CurrencyGraph<String>(currencies, exchangeRates);
         System.out.println("Exchange Rates (21 Oct 2020)");
         System.out.println(graph);
         
         ArrayList<String> arbitragePaths = graph.getArbitrage();
         
-        System.out.println("Current arbitrage opportunities: ");
-        for(String path : arbitragePaths){
-            System.out.println(path);
-        }
+        if(arbitragePaths != null){
+            System.out.println("Current arbitrage opportunities: ");
+            for (String path : arbitragePaths) {
+                System.out.println(path);
+            }
+        }else
+            System.out.println("There are no current arbitrage opportunities.");
+        
         
         String[] currencies2 = new String[]{"AUD","EUR","MXN","NZD","USD", "CNY", "BDT", "NPR", "PEN", "RUB", "EGP"};
         double[][] rates = new double[11][11];
@@ -98,15 +102,20 @@ public class ArbitrageFinder {
         rates[10][1] = 0.1383;// EGP - EUR
         
         System.out.println("\n***********************************************************************************************************************************\n");
+        
         CurrencyGraph<String> graph2 = new CurrencyGraph<String>(currencies2, rates);
         System.out.println("Exchange Rates (Angelo's Data)");
         System.out.println(graph2);
         
         ArrayList<String> arbitragePaths2 = graph2.getArbitrage();
         
-        System.out.println("Current arbitrage opportunities: ");
-        for(String path : arbitragePaths2){
-            System.out.println(path);
-        }
+        if(arbitragePaths2 != null){
+            System.out.println("Current arbitrage opportunities: ");
+            for (String path : arbitragePaths2) {
+                System.out.println(path);
+            }
+        }else
+            System.out.println("There are no current arbitrage opportunities.");
+        
     }
 }
