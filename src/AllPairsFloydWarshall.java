@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.HashSet;
+
 
 
 /**
@@ -13,9 +16,14 @@ public class AllPairsFloydWarshall
    private int n; // number of vertices in the graph
    private double[][][] d; //d[k][i][i] is weight of path from v_i to v_j
    private int[][][] p; //p[k][i][i] is penultimate vertex in path
+   private ArrayList<Double> arbitrageExchanges;
+   private ArrayList<ArrayList<Integer>> arbitragePaths;
    
    public AllPairsFloydWarshall(double[][] weights)
-   {  n = weights.length;
+   {
+      arbitragePaths = new ArrayList<>();
+      arbitrageExchanges = new ArrayList<>();
+      n = weights.length;
       d = new double[n+1][][];
       d[0] = weights;
       // create p[0]
@@ -29,6 +37,7 @@ public class AllPairsFloydWarshall
                p[0][i][j] = NO_VERTEX;
          }
       }
+      
       // build d[1],...,d[n] and p[1],...,p[n] dynamically
       for (int k=1; k<=n; k++)
       {  d[k] = new double[n][n];
@@ -40,17 +49,21 @@ public class AllPairsFloydWarshall
                   s = d[k-1][i][k-1] + d[k-1][k-1][j];
                else
                   s = INFINITY;
+               
                if (d[k-1][i][j] <= s)
-               {  d[k][i][j] = d[k-1][i][j];
+               {                   
+                  d[k][i][j] = d[k-1][i][j];
                   p[k][i][j] = p[k-1][i][j];
                }
                else
-               {  d[k][i][j] = s;
+               {  
+                  d[k][i][j] = s;
                   p[k][i][j] = p[k-1][k-1][j];
                }
+               }
             }
-         }
-      }
+         recordArbitragePaths(k);
+       }
    }
    
    // returns a string representation of matrix d[n] and p[n]
@@ -75,18 +88,51 @@ public class AllPairsFloydWarshall
          }
          output += "\n";
       }
+      
       return output;
    }
+    
+    public ArrayList<ArrayList<Integer>> getArbitragePaths(){
+        return arbitragePaths;
+    }
+    
+    public ArrayList<Double> getArbitrageExchanges(){
+        return arbitrageExchanges;
+    }
 
-    public double[][][] getD(){
-        return d;
-    }
-    
-    public int[][][] getP(){
-        return p;
-    }
-    
-    public int getN(){
-        return n;
+    private void recordArbitragePaths(int current) {
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (i == j && d[current][i][j] != INFINITY) {
+                    if(d[current][i][j] < 0){
+                        int pathIndex = p[current][i][j];
+                        ArrayList<Integer> tempPath = new ArrayList<Integer>();
+                        tempPath.add(i);
+                        HashSet<Integer> duplicateChecker = new HashSet<>();
+                        do {
+                            tempPath.add(pathIndex);
+                            pathIndex = p[current][i][pathIndex];
+                        } while (pathIndex != i && duplicateChecker.add(pathIndex));
+                        
+                        tempPath.add(i);
+
+                        if(pathIndex == i && !arbitragePaths.contains(tempPath)){
+                            arbitragePaths.add(tempPath);
+                            arbitrageExchanges.add(d[current][i][j]);
+                                  
+                            if (tempPath.size() == 3) {
+                                ArrayList<Integer> oppositeWay = new ArrayList<Integer>();
+                                oppositeWay.add(tempPath.get(1));
+                                oppositeWay.add(tempPath.get(0));
+                                oppositeWay.add(tempPath.get(1));
+                                
+                                arbitragePaths.add(oppositeWay);
+                                arbitrageExchanges.add(d[current][i][j]);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }

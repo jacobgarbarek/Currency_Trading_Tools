@@ -1,5 +1,5 @@
 
-import java.util.Map;
+import java.util.ArrayList;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -25,14 +25,12 @@ public class ArbitrageFinder {
         System.out.println("Exchange Rates (21 Oct 2020)");
         System.out.println(graph);
         
-        Map<Vertex<String>,String> arbitragePaths = graph.getArbitrage();
+        ArrayList<String> arbitragePaths = graph.getArbitrage();
         
-        if(!arbitragePaths.isEmpty()){
-            System.out.println("Current arbitrage opportunities: ");
-            for(String s: arbitragePaths.values())
-                System.out.println(s);
-        }else
-            System.out.println("There are no current arbitrage opportunities.");
+        System.out.println("Current arbitrage opportunities: ");
+        for(String path : arbitragePaths){
+            System.out.println(path);
+        }
         
         String[] currencies2 = new String[]{"AUD","EUR","MXN","NZD","USD", "CNY", "BDT", "NPR", "PEN", "RUB", "EGP"};
         double[][] rates = new double[11][11];
@@ -99,18 +97,16 @@ public class ArbitrageFinder {
         
         rates[10][1] = 0.1383;// EGP - EUR
         
-        System.out.println("**********************************************************************************************");
+        System.out.println("\n***********************************************************************************************************************************\n");
         CurrencyGraph<String> graph2 = new CurrencyGraph<String>(currencies2, rates);
-        System.out.println("Exchange Rates TEST 2");
+        System.out.println("Exchange Rates (Angelo's Data)");
         System.out.println(graph2);
         
-        Map<Vertex<String>,String> arbitragePaths2 = graph2.getArbitrage();
+        ArrayList<String> arbitragePaths2 = graph2.getArbitrage();
         
-        if(!arbitragePaths2.isEmpty()){
-            System.out.println("Current arbitrage opportunities: ");
-            for(String s: arbitragePaths2.values())
-                System.out.println(s);
-        }else
-            System.out.println("There are no current arbitrage opportunities.");
+        System.out.println("Current arbitrage opportunities: ");
+        for(String path : arbitragePaths2){
+            System.out.println(path);
+        }
     }
 }

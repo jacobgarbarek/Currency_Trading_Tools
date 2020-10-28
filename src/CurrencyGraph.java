@@ -3,7 +3,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -110,7 +109,7 @@ public class CurrencyGraph<E> extends AdjacencyListGraph<E>{
           output += "\n";
       }
       
-      output += "\nEdge Weights\n";
+      /*output += "\nEdge Weights\n";
       
       for (Vertex<E> vertex : vertices){
          output += vertex + ": ";
@@ -120,12 +119,12 @@ public class CurrencyGraph<E> extends AdjacencyListGraph<E>{
              output += weights.get(edge) + "" + edge+", ";
          }
          output += "\n";
-      }
+      }*/
       
       return output;
    }
 
-    public Map<Vertex<E>,String> getArbitrage() {
+    public ArrayList<String> getArbitrage() {
         double[][] weightsTable = new double[vertexList.size()][vertexList.size()];
 
         for (int i = 0; i < weightsTable.length; i++) {
@@ -140,58 +139,25 @@ public class CurrencyGraph<E> extends AdjacencyListGraph<E>{
         }
         
         AllPairsFloydWarshall apfw = new AllPairsFloydWarshall(weightsTable);
-        System.out.println(apfw);
-        double[][][] d = apfw.getD();
-        int[][][] p = apfw.getP();
-        int n = apfw.getN();
         
-        Map<Vertex<E>,String> aPaths = new HashMap<>();
-        HashSet<Vertex<E>> duplicateChecker = new HashSet<>();
-        String path = null;
+        ArrayList<String> arbitrageOutputs = new ArrayList<String>();
+        ArrayList<Double> arbitrageExchanges = apfw.getArbitrageExchanges();
+        ArrayList<ArrayList<Integer>> arbitragePaths = apfw.getArbitragePaths();
         
-        for(int i=0;i<vertexList.size();i++){
-            double conversionRate = 0;
-            if(d[n][i][i] < 0){                             //arbitrage opportunity exists
-                boolean innerClosedPath = false;
-                int prevStep = p[n][i][i];
-                path = vertexList.get(i) + ")";
-                int finalPointingIndex = i;
-                
-                do {
-                    Vertex<E> prevV = vertexList.get(prevStep);
-                    
-                    if(!duplicateChecker.add(prevV))
-                        innerClosedPath = true;
-                    else{
-                        Set<Edge<E>> edges = adjacencyLists.get(prevV);
-                        
-                        for (Edge<E> e : edges) {
-                            Vertex<E>[] endVertices = e.endVertices();
-                            if(endVertices[1].equals(vertexList.get(finalPointingIndex))){
-                                conversionRate += weights.get(e);
-                                break;
-                            }
-                        }
-                        path = vertexList.get(prevStep) + "-" + path;
-                        finalPointingIndex = prevStep;
-                        prevStep = p[n][i][prevStep];
-                    }
-                } while (!innerClosedPath && p[n][i][prevStep] != i);
-                
-                if(!innerClosedPath){
-                    conversionRate = (1 / Math.exp(conversionRate));
-                    BigDecimal bd = new BigDecimal(Double.toString(conversionRate));
-                    bd = bd.setScale(4, RoundingMode.HALF_EVEN);
-                    conversionRate = bd.doubleValue();
-                    path = "(" + path + " = "+conversionRate;
-                    aPaths.put(vertexList.get(i), path);
-                }
-                
-                duplicateChecker.clear();
-                path = "";
+        for(int i=0; i<arbitragePaths.size();i++){
+            String output = "(";
+            for(int j = arbitragePaths.get(i).size()-1; j >= 1; j--){
+                output += vertexList.get(arbitragePaths.get(i).get(j))+"-";
             }
+            double conversionRate = (1 / Math.exp(arbitrageExchanges.get(i)));
+            BigDecimal bd = new BigDecimal(Double.toString(conversionRate));
+            bd = bd.setScale(4, RoundingMode.HALF_EVEN);
+            conversionRate = bd.doubleValue();
+            
+            output += vertexList.get(arbitragePaths.get(i).get(0)) + ") = " +conversionRate;
+            arbitrageOutputs.add(output);
         }
         
-        return aPaths;
+        return arbitrageOutputs;
     }
 }

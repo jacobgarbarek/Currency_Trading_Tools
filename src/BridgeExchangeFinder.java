@@ -38,5 +38,22 @@ public class BridgeExchangeFinder {
         System.out.println("The bridges of the provided exchange rates are: ");
         for(Edge bridge : bridges)
             System.out.println(bridge);
+        
+        String[] currencies2 = new String[]{"EUR", "NZD", "AUD", "USD", "MXN"};
+        double[][] exchangeRates2 = new double[][]{
+            {1.0000, 1.7919, 1.6751, 1.1861, 0},
+            {0.5579, 1.0000, 0.9348, 0.6616, 0},
+            {0.5966, 1.0694, 1.0000, 0.7077, 0},
+            {0.8431, 1.5110, 1.4125, 1.0000, 21.0496},
+            {0.0000, 0.0000, 0.0000, 0.0474, 1.0000},
+        };
+        
+        BridgeExchangeGraph<String> graph2 = new BridgeExchangeGraph<String>(currencies2, exchangeRates2);
+        System.out.println("\n"+graph2);
+        Set<Edge<String>> bridges2 = graph2.findBridges(0);
+        
+        System.out.println("The bridges of the provided exchange rates are: ");
+        for(Edge bridge : bridges2)
+            System.out.println(bridge);
     }
 }
