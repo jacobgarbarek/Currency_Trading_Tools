@@ -1,6 +1,7 @@
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -21,6 +22,7 @@ public class BridgeExchangeGraph<E> extends AdjacencyListGraph<E> {
     private static enum Colour{WHITE, GREY, BLACK};
     private Map<Vertex<E>, Colour> vertexColours;
     private Map<Vertex<E>, Vertex<E>> parents;
+    public Set<Edge<E>> traversedEdges;
     private Vertex parent;
     public Map<Vertex<E>, Integer> d;
     public Map<Vertex<E>, Integer> m;
@@ -34,6 +36,7 @@ public class BridgeExchangeGraph<E> extends AdjacencyListGraph<E> {
         d = new HashMap<Vertex<E>, Integer>();
         m = new HashMap<Vertex<E>, Integer>();
         parents = new HashMap<Vertex<E>, Vertex<E>>();
+        traversedEdges = new HashSet<>();
         parent = null;
         counter = 0;
         
@@ -57,11 +60,7 @@ public class BridgeExchangeGraph<E> extends AdjacencyListGraph<E> {
         }
     }
     
-    public void performDepthFirstSearch(int index){
-        performDepthFirstSearch(vertexList.get(index));
-    }
-    
-    public void performDepthFirstSearch(Vertex<E> startVertex)
+    private void performDepthFirstSearch(Vertex<E> startVertex)
    {  if (!this.containsVertex(startVertex))
          throw new IllegalArgumentException("vertex not in graph");
       // handle the starting vertex
@@ -115,5 +114,19 @@ public class BridgeExchangeGraph<E> extends AdjacencyListGraph<E> {
    {  
        Vertex[] vertices = edge.endVertices();
        parents.put(vertices[1], vertices[0]);
+       traversedEdges.add(edge);
+   }
+   
+   public Set<Edge<E>> findBridges(int index){
+       performDepthFirstSearch(vertexList.get(index));
+       Set<Edge<E>> bridges = new HashSet<>();
+       
+       for(Edge e : traversedEdges){
+           Vertex[] vertices = e.endVertices();
+           if(m.get(vertices[1]) > d.get(vertices[0]))
+               bridges.add(e);
+       }
+       
+       return bridges;
    }
 }

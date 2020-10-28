@@ -1,3 +1,7 @@
+
+import java.util.HashSet;
+import java.util.Set;
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -29,9 +33,10 @@ public class BridgeExchangeFinder {
 
         BridgeExchangeGraph<String> graph = new BridgeExchangeGraph<String>(currencies, exchangeRates);
         System.out.println(graph);
-        graph.performDepthFirstSearch(0);
-        System.out.println(graph.d);
-        System.out.println("");
-        System.out.println(graph.m);
+        Set<Edge<String>> bridges = graph.findBridges(0);
+        
+        System.out.println("The bridges of the provided exchange rates are: ");
+        for(Edge bridge : bridges)
+            System.out.println(bridge);
     }
 }
