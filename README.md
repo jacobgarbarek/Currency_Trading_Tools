@@ -9,7 +9,10 @@ exchanges (bridges) which if were made unavailable would mean some currencies wi
 I plan on further developing this project by incorporating an API that can be used to continously obtain updated exchange rates.
 
 ## Best Conversion Finder
+<img src="outputexamples/BestConversionExample.JPG">
 
 ## Arbitrage Finder
+<img src="outputexamples/ArbitrageExample.JPG">
 
 ## Bridge Exchange Finder
+<img src="outputexamples/BridgeFinderExample.JPG">
