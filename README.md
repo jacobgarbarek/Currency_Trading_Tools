@@ -7,3 +7,9 @@ set of exchange rates. This tool was implemented using Floyd-Warshall's graphing
 exchanges (bridges) which if were made unavailable would mean some currencies within the provided dataset would no longer be able to be traded with.
 
 I plan on further developing this project by incorporating an API that can be used to continously obtain updated exchange rates.
+
+## Best Conversion Finder
+
+## Arbitrage Finder
+
+## Bridge Exchange Finder
